@@ -207,10 +207,10 @@ def alpha_beta_filter(x, y):
 if __name__ == '__main__':
     # parse data from ekatalog website, save to files
     # https://ek.ua/ua/ECOFLOW-DELTA-2.htm
-    # url = input('Введіть URL для парсингу (сторінка товару на ekatalog): ')
-    # if not url:
-    #     url = 'https://ek.ua/ua/CANON-50MM-F-1-4-EF-USM.htm'
-    url = 'https://ek.ua/ua/ECOFLOW-DELTA-2.htm'
+    url = input('Введіть URL для парсингу (сторінка товару на ekatalog): ')
+    if not url:
+        url = 'https://ek.ua/ua/CANON-50MM-F-1-4-EF-USM.htm'
+    #url = 'https://ek.ua/ua/ECOFLOW-DELTA-2.htm'
     parser = Parser(url)
     price_change, number_of_shops = parser.parse_table(save_to_files=False)
 
@@ -218,7 +218,6 @@ if __name__ == '__main__':
     # price_change = pd.read_excel('./data/ECOFLOW-DELTA-2_price_change.xlsx')
     # number_of_shops = pd.read_excel('./data/ECOFLOW-DELTA-2_number_of_shops.xlsx')
 
-    '''
     type_of_noise = input('Введіть тип шуму (uniform або normal, за замовчуванням normal): ')
     if type_of_noise not in ['uniform', 'normal']:
         type_of_noise = 'normal'
@@ -230,8 +229,7 @@ if __name__ == '__main__':
     noise_factor = float(noise) if noise else 0.05
     number_x = int(number_x) if number_x else 10*len(price_change)
     degree = MAX_DEGREE_POLYNOMIAL
-    '''
-    type_of_noise, noise_factor, number_x, degree = 'normal', 0.05, 10*len(price_change), MAX_DEGREE_POLYNOMIAL
+
 
     datastats, synthetic_data = process_data(price_change['date'], price_change['avg'], 'Дата', 'Середня ціна',
                  max_degree=degree, noise_factor=noise_factor, number_x=number_x, type_of_noise=type_of_noise)
@@ -246,13 +244,10 @@ if __name__ == '__main__':
 
 
     # anomalyes
-    '''
     number_of_anomalies = input('Введіть кількість аномальних вимірів у відсотках (за замовчуванням 5%): ')
     number_of_anomalies = int(number_of_anomalies)/100 if number_of_anomalies else 0.05
     coef_anomalies = input('Введіть коефіцієнт аномальних вимірів (за замовчуванням 1.25): ')
     coef_anomalies = float(coef_anomalies) if coef_anomalies else 1.25
-    '''
-    number_of_anomalies, coef_anomalies = 0.05, 1.25
 
     anomaly_generator = AnomalyGenerator(number_of_anomalies, coef_anomalies, synthetic_data.x_synthetic,
                                             synthetic_data.y_synthetic, synthetic_data.y_synthetic_trend)
