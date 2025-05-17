@@ -90,20 +90,77 @@ def compare_dfs(df1: pd.DataFrame, df2: pd.DataFrame):
     compare_column(df1, df2, 'company_name', clean_title, 'Companies', 'top_common_companies_comparison.png')
 
 
-import plotly.express as px
-df = pd.read_excel('./data/dou_data_clear.xlsx')
-df_cube = df.groupby(['job_title', 'company_name', 'location']).size().reset_index(name='count')
-fig = px.scatter_3d(df_cube,
-                    x='job_title',
-                    y='company_name',
-                    z='location',
-                    color='count',
-                    title='3D Scatter Plot of Job Titles, Companies, and Locations',
-                    labels={'job_title': 'Job Title', 'company_name': 'Company Name', 'location': 'Location'},
-                    hover_name='count',
-                    size_max=10,
-                    color_continuous_scale=px.colors.sequential.Viridis)
-fig.update_traces(marker=dict(size=5))
-fig.show()
+def generate_olap_cube(df: pd.DataFrame, index_columns: list, value_column: str, specific_location: str,
+                          title: str, top_n: int = 30):
+    def count_specific_value(x, target):
+        return (x == target.lower()).sum()
+
+    # Очистка назв
+    df[index_columns[0]] = df[index_columns[0]].apply(clean_title)
+    df[index_columns[1]] = df[index_columns[1]].apply(clean_title)
+    df[value_column] = df[value_column].apply(clean_title)
+
+    # Top N
+    top_jobs = df[index_columns[0]].value_counts().head(top_n).index
+    top_companies = df[index_columns[1]].value_counts().head(top_n).index
+
+    # Фільтрація
+    df_filtered = df[df[index_columns[0]].isin(top_jobs) & df[index_columns[1]].isin(top_companies)]
+
+    # Зведена таблиця
+    pivot_table = pd.pivot_table(
+        df_filtered,
+        index=index_columns[0],
+        columns=index_columns[1],
+        values=value_column,
+        aggfunc=lambda x: count_specific_value(x, specific_location),
+        fill_value=0
+    )
+    pivot_table = pivot_table.loc[:, (pivot_table.sum(axis=0) > 0)]
+    pivot_table = pivot_table.loc[(pivot_table.sum(axis=1) > 0), :]
+
+    # Підготовка даних для 3D графіку
+    x_labels = list(pivot_table.index)
+    y_labels = list(pivot_table.columns)
+    x_len = len(x_labels)
+    y_len = len(y_labels)
+
+    xpos, ypos = np.meshgrid(np.arange(x_len), np.arange(y_len), indexing="ij")
+    xpos = xpos.flatten()
+    ypos = ypos.flatten()
+    zpos = np.zeros_like(xpos)
+
+    # Висоти стовпчиків
+    dz = pivot_table.values.flatten()
+
+    # Розміри
+    dx = dy = 0.4
+
+    # Колір на основі значень
+    from matplotlib import cm
+    colors = cm.viridis(dz / dz.max())
+
+    # Побудова 3D-графіку
+    fig = plt.figure(figsize=(14, 8))
+    ax = fig.add_subplot(111, projection='3d')
+    ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color=colors, zsort='average', alpha=0.9)
+
+    ax.set_xlabel(index_columns[0])
+    ax.set_ylabel(index_columns[1])
+    ax.set_zlabel(f'"{specific_location}" in {value_column}')
+
+    # Індекси на осях
+    ax.set_xticks(np.arange(x_len) + dx / 2)
+    ax.set_xticklabels(x_labels, rotation=45, ha='right')
+    ax.set_yticks(np.arange(y_len) + dy / 2)
+    ax.set_yticklabels(y_labels, rotation=-35, ha='left')
+    ax.tick_params(axis='x', labelsize=10)
+    ax.tick_params(axis='y', labelsize=10)
+    ax.tick_params(axis='z', labelsize=10)
+
+    plt.title(title)
+    plt.show()
+
+
 
 

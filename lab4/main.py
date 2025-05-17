@@ -36,13 +36,21 @@ if __name__ == '__main__':
 
     # analyze data
     print('Analyzing data...')
-    # print('Generating word clouds...')
-    # merge_data = pd.concat([data_dou_clear, data_linkedin_clear], ignore_index=True)
-    # generate_wordcloud_from_df(merge_data, title='Data: DOU + LinkedIn')
-    # print('Comparing data...')
-    # compare_dfs(data_dou_clear, data_linkedin_clear)
+    print('Generating word clouds...')
+    merge_data = pd.concat([data_dou_clear, data_linkedin_clear], ignore_index=True)
+    generate_wordcloud_from_df(merge_data, title='Data: DOU + LinkedIn')
+    print('Comparing data...')
+    compare_dfs(data_dou_clear, data_linkedin_clear)
     print('OLAP analysis...')
-    olap_cube = generate_olap_cube(data_dou_clear, ['job_title', 'location'], ['company_name'], 'salary')
+    generate_olap_cube(merge_data, ['job_title', 'location'], 'level',
+                       'senior',
+                       title='OLAP Analysis: count of senior positions by job title and location')
+    generate_olap_cube(merge_data, ['job_title', 'company_name'], 'location',
+                       'remote',
+                       title='OLAP Analysis: count of remote positions by job title and company name')
+    generate_olap_cube(merge_data, ['level', 'location'], 'job_title',
+                          'data analyst',
+                          title='OLAP Analysis: count of data analyst positions by level and location')
 
 
 

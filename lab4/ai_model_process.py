@@ -1,8 +1,5 @@
 import os
 import time
-
-import transformers
-import torch
 from groq import Groq
 from dotenv import load_dotenv
 
@@ -20,7 +17,9 @@ def get_response_api(prompt: str, system_prompt: str = None) -> str:
 
     response = client.chat.completions.create(
         messages=messages,
-        model="llama-3.1-8b-instant"
+        # low - llama-3.1-8b-instant, high - llama-3.3-70b-versatile
+        # model="llama-3.1-8b-instant"
+        model="llama-3.1-8b-instant",
     )
 
     return response.choices[0].message.content
