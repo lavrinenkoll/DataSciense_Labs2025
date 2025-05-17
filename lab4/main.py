@@ -1,14 +1,14 @@
 import pandas as pd
-from matplotlib import pyplot as plt
-
 from lab4.parsing_process import grab_and_save, get_urls_dou, grab_dou_vacancy, get_urls_linkedin, grab_linkedin_vacancy
 from lab4.clear_data import clear_data_dou, clear_data_linkedin
 from lab4.data_analytics import generate_wordcloud_from_df, compare_dfs, generate_olap_cube
 
 if __name__ == '__main__':
-    search_str = 'data analyst'
-    PARSE_NEED = False
-    CLEAR_NEED = False
+    #search_str = 'data analyst'
+    search_str = input('Enter search string: ').lower().strip()
+    PARSE_NEED = input('Do you want to parse data? (y/n): ').strip().lower() == 'y'
+    CLEAR_NEED = input('Do you want to clear data? (y/n): ').strip().lower() == 'y'
+    print('-' * 50)
 
     if PARSE_NEED:
         # parse data from dou and linkedin
