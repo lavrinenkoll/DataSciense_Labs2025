@@ -70,8 +70,8 @@ if __name__ == "__main__":
 
     # Візуалізація кластеризації з покращенням
     fig, axes = plt.subplots(1, 2, figsize=(12, 6))
-    axes[0].imshow(cv2.resize(image_rgb, (mask.shape[1], mask.shape[0])))
-    axes[0].set_title('Оригінальне зображення (зменшене)')
+    axes[0].imshow(final_img)
+    axes[0].set_title('Покращене зображення')
     axes[0].axis('off')
     axes[1].imshow(overlay)
     axes[1].set_title('Кластеризація з редагуванням')
